@@ -1,6 +1,7 @@
 # elm-midi
 
-This library provides function for working with MIDI. It currently supports MIDI inputs.
+This library provides function for working with MIDI using Web MIDI API.
+It currently supports receiving MIDI messages from MIDI inputs.
 
 ```elm
 import Midi
