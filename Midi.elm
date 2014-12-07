@@ -21,26 +21,8 @@ type Input = { id:String, name:String, manufacturer:String }
 type IncomingMessage = { input:Input, receivedTime:Int, midiData:[Int] }
 type Note = { noteNumber:Int, velocity:Int }
 
-incomingInputId : Signal String
-incomingInputId = Native.Midi.incomingInputId
-
-incomingInputManufacturer : Signal String
-incomingInputManufacturer = Native.Midi.incomingInputManufacturer
-
-incomingInputName : Signal String
-incomingInputName = Native.Midi.incomingInputName
-
-incomingData : Signal [Int]
-incomingData = Native.Midi.incomingData
-
-receivedTime : Signal Int
-receivedTime = Native.Midi.receivedTime
-
 incomingInput : String -> String -> String -> Input
 incomingInput id name manufacturer = { id=id, name=name, manufacturer=manufacturer }
-
-incomingMessage : Input -> Int -> [Int] -> IncomingMessage
-incomingMessage input receivedTime midiData = { input=input, receivedTime=receivedTime, midiData=midiData }
 
 {-| The signal of incoming MIDI message.
 
@@ -54,10 +36,12 @@ A MIDI message has following attributes.
   * midiData -- the midi data([Int])
 -}
 incoming : Signal IncomingMessage
-incoming = incomingMessage <~
-     (incomingInput <~ incomingInputId ~ incomingInputName ~ incomingInputManufacturer) ~
-     receivedTime ~
-     incomingData
+incoming = lift (\im -> {
+                   input=incomingInput im.input.id im.input.name im.input.manufacturer,
+                   receivedTime=im.receivedTime,
+                   midiData=im.midiData
+                 })
+           Native.Midi.incoming
 
 {-| Whether given message is "note on". -}
 isNoteOn : IncomingMessage -> Bool

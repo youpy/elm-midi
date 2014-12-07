@@ -11,23 +11,17 @@ Elm.Native.Midi.make = function(localRuntime) {
   }
 
   var Signal = Elm.Signal.make(localRuntime);
-  var Utils = Elm.Native.Utils.make(localRuntime);
   var List = Elm.Native.List.make(localRuntime);
 
-  var incomingInputId = Signal.constant('');
-  incomingInputId.defaultNumberOfKids = 1;
-
-  var incomingInputManufacturer = Signal.constant('');
-  incomingInputManufacturer.defaultNumberOfKids = 1;
-
-  var incomingInputName = Signal.constant('');
-  incomingInputName.defaultNumberOfKids = 1;
-
-  var incomingData = Signal.constant(List.fromArray([0, 0, 0]));
-  incomingData.defaultNumberOfKids = 1;
-
-  var receivedTime = Signal.constant(0);
-  receivedTime.defaultNumberOfKids = 1;
+  var incoming = Signal.constant({
+    input: {
+      id: '',
+      manufacturer: '',
+      name: ''
+    },
+    receivedTime: 0,
+    midiData: List.fromArray([0, 0, 0])
+  });
 
   function onMIDIInit(m) {
     var midi;
@@ -57,11 +51,15 @@ Elm.Native.Midi.make = function(localRuntime) {
   function onMIDIReject(err) { console.log(err); }
 
   function MIDIMessageEventHandler(id, manufacturer, name, event) {
-    localRuntime.notify(incomingInputId.id, id);
-    localRuntime.notify(incomingInputManufacturer.id, manufacturer);
-    localRuntime.notify(incomingInputName.id, name);
-    localRuntime.notify(incomingData.id, List.fromArray(event.data));
-    localRuntime.notify(receivedTime.id, event.receivedTime);
+    localRuntime.notify(incoming.id, {
+      input: {
+        id: id,
+        manufacturer: manufacturer,
+        name: name
+      },
+      receivedTime: event.receivedTime,
+      midiData: List.fromArray(event.data)
+    });
   }
 
   if (navigator.requestMIDIAccess) {
@@ -69,10 +67,6 @@ Elm.Native.Midi.make = function(localRuntime) {
   }
 
   return localRuntime.Native.Midi.values = {
-    incomingInputId: incomingInputId,
-    incomingInputManufacturer: incomingInputManufacturer,
-    incomingInputName: incomingInputName,
-    incomingData: incomingData,
-    receivedTime: receivedTime
+    incoming: incoming
   };
 };
