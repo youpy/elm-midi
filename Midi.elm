@@ -54,9 +54,9 @@ A MIDI message has following attributes.
   * midiData -- the midi data([Int])
 -}
 incoming : Signal IncomingMessage
-incoming = lift3 incomingMessage
-     (lift3 incomingInput incomingInputId incomingInputName incomingInputManufacturer)
-     receivedTime
+incoming = incomingMessage <~
+     (incomingInput <~ incomingInputId ~ incomingInputName ~ incomingInputManufacturer) ~
+     receivedTime ~
      incomingData
 
 {-| Whether given message is "note on". -}
