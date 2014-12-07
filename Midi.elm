@@ -87,6 +87,7 @@ note msg =
     else Nothing
 
 {-| The empty MIDI message. -}
+emptyMessage : IncomingMessage
 emptyMessage = { input=(incomingInput "" "" ""), receivedTime=0, midiData=[0, 0, 0] }
 
 {-| Get velocity from MIDI data. -}
