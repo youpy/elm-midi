@@ -9,7 +9,7 @@ module Midi where
 @docs note, isNoteOn, isNoteOff
 
 # Utility Functions
-@docs velocity, emptyMessage
+@docs velocity, channel, emptyMessage
 
 -}
 
@@ -19,7 +19,7 @@ import Bitwise (and)
 
 type Input = { id:String, name:String, manufacturer:String }
 type IncomingMessage = { input:Input, receivedTime:Int, midiData:[Int] }
-type Note = { noteNumber:Int, velocity:Int }
+type Note = { channel:Int, noteNumber:Int, velocity:Int }
 
 incomingInput : String -> String -> String -> Input
 incomingInput id name manufacturer = { id=id, name=name, manufacturer=manufacturer }
@@ -61,19 +61,24 @@ isNoteOff msg =
 
 {-| Get following note information from given message.
 
+  * channel
   * noteNumber
   * velocity
 -}
 note : IncomingMessage -> Maybe Note
 note msg =
     if (isNoteOff msg) || (isNoteOn msg)
-    then Just { noteNumber=head <| tail msg.midiData, velocity=velocity msg.midiData }
+    then Just { channel=channel msg.midiData, noteNumber=head <| tail msg.midiData, velocity=velocity msg.midiData }
     else Nothing
-
-{-| The empty MIDI message. -}
-emptyMessage : IncomingMessage
-emptyMessage = { input=(incomingInput "" "" ""), receivedTime=0, midiData=[0, 0, 0] }
 
 {-| Get velocity from MIDI data. -}
 velocity : [Int] -> Int
 velocity midiData = last <| take 3 midiData
+
+{-| Get channel from MIDI data. -}
+channel : [Int] -> Int
+channel midiData = (and 15 <| head midiData) + 1
+
+{-| The empty MIDI message. -}
+emptyMessage : IncomingMessage
+emptyMessage = { input=(incomingInput "" "" ""), receivedTime=0, midiData=[0, 0, 0] }
