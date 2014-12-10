@@ -13,13 +13,14 @@ module Midi where
 
 -}
 
-import Signal (Signal)
+import Signal (..)
 import Native.Midi
 import Bitwise (and)
+import List (head, tail, reverse, take)
 
-type Input = { id:String, name:String, manufacturer:String }
-type IncomingMessage = { input:Input, receivedTime:Int, midiData:[Int] }
-type Note = { channel:Int, noteNumber:Int, velocity:Int }
+type alias Input = { id : String, name : String, manufacturer : String }
+type alias IncomingMessage = { input : Input, receivedTime : Int, midiData : (List Int) }
+type alias Note = { channel : Int, noteNumber : Int, velocity : Int }
 
 incomingInput : String -> String -> String -> Input
 incomingInput id name manufacturer = { id=id, name=name, manufacturer=manufacturer }
@@ -36,7 +37,7 @@ A MIDI message has following attributes.
   * midiData -- the midi data([Int])
 -}
 incoming : Signal IncomingMessage
-incoming = lift (\im -> {
+incoming = map (\im -> {
                    input=incomingInput im.input.id im.input.name im.input.manufacturer,
                    receivedTime=im.receivedTime,
                    midiData=im.midiData
@@ -72,11 +73,11 @@ note msg =
     else Nothing
 
 {-| Get velocity from MIDI data. -}
-velocity : [Int] -> Int
-velocity midiData = last <| take 3 midiData
+velocity : (List Int) -> Int
+velocity midiData = head <| reverse <| take 3 midiData
 
 {-| Get channel from MIDI data. -}
-channel : [Int] -> Int
+channel : (List Int) -> Int
 channel midiData = (and 15 <| head midiData) + 1
 
 {-| The empty MIDI message. -}

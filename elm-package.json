@@ -1,0 +1,14 @@
+{
+    "version": "1.0.0",
+    "summary": "A Library for working with MIDI",
+    "repository": "https://github.com/youpy/elm-midi.git",
+    "license": "BSD3",
+    "source-directories": [
+        "."
+    ],
+    "exposed-modules": ["Midi"],
+    "native-modules": true,
+    "dependencies": {
+        "elm-lang/core": "1.0.0 <= v < 2.0.0"
+    }
+}
